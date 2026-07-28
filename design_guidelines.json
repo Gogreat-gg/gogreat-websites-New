@@ -1,0 +1,106 @@
+{
+  "theme": "Light mode primary with high-contrast Midnight Blue editorial sections (Archetype 4: Swiss & High-Contrast mixed with Archetype 5: Luxury).",
+  "typography": {
+    "heading_font": "Outfit",
+    "body_font": "Inter",
+    "rules": [
+      "Use tight letter spacing (tracking-tight) for all headings above 32px.",
+      "Never center-align paragraphs; maintain left-alignment for dense content.",
+      "Maximum heading size should be text-6xl for the hero.",
+      "Use uppercase with wide tracking (tracking-widest) for overlines and labels.",
+      "Do NOT use Inter for main headings. Use Outfit in Black/Bold weights for strong authority."
+    ]
+  },
+  "colors": {
+    "background_light": "#FAFAFA",
+    "background_dark": "#0B132B",
+    "text_primary_light": "#0A0A0A",
+    "text_secondary_light": "#404040",
+    "text_primary_dark": "#FFFFFF",
+    "text_secondary_dark": "#A3A3A3",
+    "brand_blue": "#0033FF",
+    "accent_gold": "#D4AF37",
+    "border_color": "#E5E5E5",
+    "rules": [
+      "No full-screen flat gradients. Use subtle noise/grain textures if needed.",
+      "Rely on solid color contrasts (White vs. Midnight Blue) to separate sections.",
+      "Use Brand Blue strictly for CTAs and interactive highlights.",
+      "Never use pure black or pure white; tint slightly (e.g., #FAFAFA, #0A0A0A)."
+    ]
+  },
+  "visual_enhancers": {
+    "shadows": "Ambient diffuse shadows for floating elements, but prefer 1px sharp borders for a technical, Swiss-brutalist consulting look.",
+    "border_radius": "Subtle roundness (rounded-lg to rounded-xl), avoiding overly pill-shaped containers unless it's a specific button.",
+    "surfaces": "Use glassmorphism (backdrop-blur-xl bg-white/70) ONLY for sticky headers. Cards should be solid with a 1px border."
+  },
+  "grids_and_layouts": {
+    "spacing": "Generous spacing. Use py-24 to py-32 for section padding. Containers must have p-6 or p-8 internal padding.",
+    "hero_layout": "Asymmetric. Large kinetic text dominating 70% of the screen, with overlapping raw imagery or a subtle 3D/parallax element.",
+    "bento_grid": "Use for the 'Trust/Why-Us' section. Mix col-span-2 and col-span-1 to create visual tension.",
+    "general": "Start with grid-cols-1 for mobile, md:grid-cols-12 for desktop layouts. Use gap-8 to gap-12."
+  },
+  "motion_and_interactions": {
+    "hero_reveal": "Kinetic Hero with masked reveal. Wrap each line of the H1 in an overflow-hidden span, and animate the text upward (y: 100% to 0) using framer-motion.",
+    "marquee": "Slow editorial marquee for the trust line ('Tamil Nadu MSMEs — built for you • No hidden charges • 100% Confidential'). Use react-fast-marquee or framer-motion.",
+    "scroll": "Implement @studio-freight/lenis for smooth momentum scrolling.",
+    "micro_interactions": "Hover states on all buttons and cards (-translate-y-1, shadow-lg). Ensure focus states are accessible (ring-2 ring-brand_blue)."
+  },
+  "components_strategy": {
+    "marketing_sections": "Use raw HTML/Tailwind for Hero, Problem Manifesto, and Trust sections to allow extreme creative layout freedom.",
+    "forms_and_interactive": "Use shadcn/ui components (Input, Select, Form, Dialog) for the Multi-step 'Free Business Health Scan' form and Contact form. Customize them heavily to remove the default Vercel look (e.g., thicker borders, square corners, or brand blue focus).",
+    "tables": "Interactive Problems->Solutions table and Services Pricing table should use native HTML tables or CSS grids with clear 1px borders, hover row highlights, and generous padding."
+  },
+  "accessibility": {
+    "contrast": "Ensure all text over images or dark backgrounds meets APCA/WCAG AA standards. Use text-shadow or a gradient overlay (bg-gradient-to-r from-black/70 to-transparent) on hero images if needed.",
+    "testing": "All interactive elements (buttons, links, form inputs) MUST include a 'data-testid' attribute (e.g., data-testid='health-scan-cta').",
+    "motion": "Respect prefers-reduced-motion for all framer-motion animations."
+  },
+  "image_urls": {
+    "hero_or_trust_retail": {
+      "url": "https://images.unsplash.com/photo-1759334928681-dc7ad674138e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwzfHxJbmRpYW4lMjByZXRhaWwlMjBzaG9wJTIwb3duZXIlMjBzbWlsaW5nfGVufDB8fHx8MTc4NDI2Njc5Nnww&ixlib=rb-4.1.0&q=85",
+      "description": "Smiling Indian retail shop owner, representing the MSME target audience.",
+      "category": "Trust / About"
+    },
+    "factory_manufacturing": {
+      "url": "https://images.unsplash.com/photo-1610891015188-5369212db097?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwbWFudWZhY3R1cmluZyUyMG1hY2hpbmVyeSUyMGluZHVzdHJpYWx8ZW58MHx8fHwxNzgyNjUyMTY2fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Industrial textile factory with machinery.",
+      "category": "Services / Problem Section Background"
+    },
+    "consultation_meeting": {
+      "url": "https://images.pexels.com/photos/8152734/pexels-photo-8152734.jpeg",
+      "description": "Professionals shaking hands in an office, symbolizing partnership.",
+      "category": "Hero / Process Timeline"
+    },
+    "dashboard_analytics": {
+      "url": "https://images.pexels.com/photos/577210/pexels-photo-577210.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Laptop showing data analytics, representing the 'Executive Dashboard' and tech implementations.",
+      "category": "Solutions Table / Services"
+    }
+  },
+  "instructions_to_main_agent": [
+    "You MUST use .js and .jsx extensions for all files.",
+    "Implement Lenis smooth scroll globally in the App layout.",
+    "Do not use transparent backgrounds for the sticky header; use backdrop-blur-xl bg-white/80 or solid white.",
+    "For the 'Free Business Health Scan', build a multi-step form utilizing state to progress through 8 conceptual steps.",
+    "Use framer-motion for the masked kinetic text reveal on the Hero H1 ('Stop Buying Websites...').",
+    "For the editorial marquee, use framer-motion to continuously scroll the trust text slowly.",
+    "DO NOT output standard centered generic layouts. Use large typography, heavy grid lines, and high-contrast section backgrounds (e.g., alternate between Stark White and Midnight Blue).",
+    "Ensure the 'Problems -> Solutions' interactive table feels premium, perhaps with row-expand or hover-reveal logic.",
+    "Incorporate the required 'data-testid' on all interactive elements.",
+    "Never use generic placeholder text; stick strictly to the provided copy for GoGreat."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition (e.g., transition: all).",
+    "You MUST NOT center align the app container in CSS.",
+    "Always use modern button styles like pill-shaped or sharp with interaction animations.",
+    "NEVER use AI assistant Emoji characters.",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Use sonner for toasts (/app/src/components/ui/sonner.jsx)."
+  ]
+}
