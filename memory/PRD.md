@@ -30,8 +30,14 @@ Professional B2B consulting website for **GoGreat** — Business Growth & AI Tra
 - Content: removed all rupee prices (kept FREE); contact email → hello@gogreat.in; address → "M.R.K. Mannar building"; added LinkedIn/Instagram/Facebook/YouTube; Tamil term "வணிக நல ஆய்வு (Vaniga Nala Aayvu)"; modern people-focused hero + About images.
 - Tested: backend 12/12, frontend 100%. Test/seed data cleared.
 
+## Iteration 3 (2026-07-30)
+- **Admin login** (single admin, JWT Bearer) protecting the Leads Dashboard. Creds in backend `.env` (ADMIN_EMAIL=hello@gogreat.in / ADMIN_PASSWORD). Login gate on `/gg-leads-dashboard`; token in localStorage; logout clears it.
+- **Lead Status tags** (new / contacted / closed) editable per lead via PATCH `/api/health-scan/{id}` & `/api/contact/{id}` (admin-only). GET lists are now admin-protected; POST submissions stay public.
+- **CSV export** (client-side) for the active tab.
+- Tested: backend 26/26, frontend 9/9 + home regression. All lead data cleared.
+
 ## Backlog / Next
-- P1: Password-protect the Leads Dashboard (currently hidden URL only).
 - P1: WhatsApp lead alerts (needs paid Twilio + business approval).
-- P2: Export leads to CSV; lead status tags (new/contacted/closed).
-- P2: Case-study section with real client results once available.
+- P2: Brute-force lockout + rate limiting on admin login; restrict CORS to deployed origin at launch.
+- P2: Real case studies with photos (swap sample testimonials once clients available).
+- P2: Lead search/filter by status; "contacted" timestamp/notes per lead.
