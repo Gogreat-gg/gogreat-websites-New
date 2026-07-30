@@ -11,9 +11,9 @@ const stages = [
   },
   {
     icon: FileText,
-    tag: "Step 2 · ₹4,999",
-    title: "Paid Study Report",
-    desc: "A 3-page report showing your Business Health Score (out of 100), 3 hidden money leaks with exact calculations, and a step-by-step fix plan.",
+    tag: "Step 2 · Paid Report",
+    title: "Detailed Study Report",
+    desc: "A detailed report showing your Business Health Score (out of 100), 3 hidden money leaks with exact calculations, and a step-by-step fix plan.",
   },
   {
     icon: PhoneCall,
@@ -39,7 +39,7 @@ export default function Service() {
           </Reveal>
           <Reveal delay={0.05}>
             <h1 className="font-display mt-5 max-w-4xl text-4xl font-black leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
-              Vaniga Nala Aayvu — Your Business Health Study
+              வணிக நல ஆய்வு (Vaniga Nala Aayvu) — Your Business Health Study
             </h1>
           </Reveal>
           <Reveal delay={0.1}>

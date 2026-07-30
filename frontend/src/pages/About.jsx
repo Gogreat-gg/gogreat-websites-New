@@ -42,7 +42,7 @@ export default function About() {
                   owners, manufacturers and traders.
                 </p>
                 <p>
-                  Our flagship service, <span className="font-semibold text-[#0A0A0A]">Vaniga Nala Aayvu</span> (Business
+                  Our flagship service, <span className="font-semibold text-[#0A0A0A]">வணிக நல ஆய்வு (Vaniga Nala Aayvu)</span> (Business
                   Health Study), is designed to give you a doctor's diagnosis for your business. We find the hidden
                   problems. We show you the money leaks. We fix them using the right mix of process improvement,
                   automation and AI.
@@ -57,8 +57,8 @@ export default function About() {
             <Reveal delay={0.1}>
               <div className="overflow-hidden rounded-2xl border border-[#E5E5E5] shadow-xl">
                 <img
-                  src="https://images.pexels.com/photos/8152734/pexels-photo-8152734.jpeg"
-                  alt="GoGreat consultants meeting a business owner"
+                  src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80"
+                  alt="GoGreat consultants working with a business team"
                   className="h-[420px] w-full object-cover"
                 />
               </div>

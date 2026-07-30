@@ -10,6 +10,7 @@ import About from "./pages/About";
 import Service from "./pages/Service";
 import Contact from "./pages/Contact";
 import HealthScan from "./pages/HealthScan";
+import LeadsDashboard from "./pages/LeadsDashboard";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -54,6 +55,7 @@ function App() {
           <Route path="/vaniga-nala-aayvu" element={<Layout><Service /></Layout>} />
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
           <Route path="/health-scan" element={<Layout><HealthScan /></Layout>} />
+          <Route path="/gg-leads-dashboard" element={<LeadsDashboard />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="bottom-right" richColors />

@@ -21,6 +21,27 @@ def test_root(client):
     assert "GoGreat" in r.json().get("message", "")
 
 
+# ---------- Email side-effect non-blocking ----------
+import time
+
+def test_health_scan_response_is_fast_email_nonblocking(client):
+    """Email dispatch must be fire-and-forget; POST should return promptly."""
+    t0 = time.time()
+    r = client.post(f"{API}/health-scan", json={"name": "TEST_Fast", "phone": "9000000099"})
+    elapsed = time.time() - t0
+    assert r.status_code == 200
+    # If email were blocking (30s timeout), request would hang; assert < 5s
+    assert elapsed < 5.0, f"Health-scan POST took {elapsed:.2f}s — email may be blocking"
+
+
+def test_contact_response_is_fast_email_nonblocking(client):
+    t0 = time.time()
+    r = client.post(f"{API}/contact", json={"name": "TEST_Fast", "phone": "9000000098"})
+    elapsed = time.time() - t0
+    assert r.status_code == 200
+    assert elapsed < 5.0, f"Contact POST took {elapsed:.2f}s — email may be blocking"
+
+
 # ---------- Health Scan ----------
 class TestHealthScan:
     def test_create_full_payload_and_persist(self, client):

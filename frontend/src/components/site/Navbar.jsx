@@ -3,10 +3,10 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 
 const links = [
-  { to: "/", label: "Home" },
-  { to: "/vaniga-nala-aayvu", label: "Vaniga Nala Aayvu" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
+  { to: "/", label: "Home", slug: "home" },
+  { to: "/vaniga-nala-aayvu", label: "வணிக நல ஆய்வு", slug: "vaniga-nala-aayvu" },
+  { to: "/about", label: "About", slug: "about" },
+  { to: "/contact", label: "Contact", slug: "contact" },
 ];
 
 export const Navbar = () => {
@@ -42,7 +42,7 @@ export const Navbar = () => {
             <NavLink
               key={l.to}
               to={l.to}
-              data-testid={`nav-link-${l.label.toLowerCase().replace(/\s+/g, "-")}`}
+              data-testid={`nav-link-${l.slug}`}
               className={({ isActive }) =>
                 `text-sm font-medium transition-colors hover:text-[#0033FF] ${
                   isActive ? "text-[#0033FF]" : "text-[#404040]"

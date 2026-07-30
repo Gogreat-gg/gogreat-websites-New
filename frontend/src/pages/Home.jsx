@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowUpRight, ArrowRight, Boxes, Users, Wallet, RefreshCw,
-  Globe, Bot, ShieldCheck, MapPin, Languages, LineChart, Handshake, BadgeCheck,
+  Globe, Bot, ShieldCheck, MapPin, Languages, LineChart, Handshake, BadgeCheck, Quote,
 } from "lucide-react";
 import { Reveal, MaskedHeading } from "../components/site/Reveal";
 import { Marquee } from "../components/site/Marquee";
 
 const IMG = {
-  owner: "https://images.unsplash.com/photo-1759334928681-dc7ad674138e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwzfHxJbmRpYW4lMjByZXRhaWwlMjBzaG9wJTIwb3duZXIlMjBzbWlsaW5nfGVufDB8fHx8MTc4NDI2Njc5Nnww&ixlib=rb-4.1.0&q=85",
+  owner: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80",
   factory: "https://images.unsplash.com/photo-1610891015188-5369212db097?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwbWFudWZhY3R1cmluZyUyMG1hY2hpbmVyeSUyMGluZHVzdHJpYWx8ZW58MHx8fHwxNzgyNjUyMTY2fDA&ixlib=rb-4.1.0&q=85",
   meeting: "https://images.pexels.com/photos/8152734/pexels-photo-8152734.jpeg",
   dashboard: "https://images.pexels.com/photos/577210/pexels-photo-577210.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
@@ -24,9 +24,9 @@ const problems = [
 
 const steps = [
   { n: "01", title: "Free Health Scan", desc: "10-minute questionnaire. We identify the red flags in your business.", cost: "FREE" },
-  { n: "02", title: "Vaniga Nala Aayvu", desc: "A deep-dive 3-page report showing exactly where your money is leaking.", cost: "₹4,999" },
-  { n: "03", title: "Implementation Sprint", desc: "We fix the #1 leak — Website, CRM, Dashboard or SOP.", cost: "₹35,000+" },
-  { n: "04", title: "Monitoring & Growth", desc: "Quarterly reviews and recurring advisory to keep you growing.", cost: "₹5,000/mo" },
+  { n: "02", title: "வணிக நல ஆய்வு (Vaniga Nala Aayvu)", desc: "A deep-dive report showing exactly where your money is leaking." },
+  { n: "03", title: "Implementation Sprint", desc: "We fix the #1 leak — Website, CRM, Dashboard or SOP." },
+  { n: "04", title: "Monitoring & Growth", desc: "Quarterly reviews and recurring advisory to keep you growing." },
 ];
 
 const solutions = [
@@ -48,12 +48,18 @@ const trust = [
 ];
 
 const services = [
-  { name: "Business Improvement Sprint", ideal: "Immediate fix for inventory / cash flow", price: "₹35,000" },
-  { name: "Digital Launch (Website + Google)", ideal: "Businesses with no online presence", price: "₹45,000" },
-  { name: "WhatsApp Automation Suite", ideal: "Shops with high inquiry volume", price: "₹50,000" },
-  { name: "Executive Dashboard", ideal: "Owners who want daily P&L visibility", price: "₹75,000" },
-  { name: "Custom CRM / ERP Setup", ideal: "Distributors and large retailers", price: "₹1,00,000+" },
-  { name: "AI Automation Implementation", ideal: "Manufacturing and service businesses", price: "₹1,50,000+" },
+  { name: "Business Improvement Sprint", ideal: "Immediate fix for inventory / cash flow" },
+  { name: "Digital Launch (Website + Google)", ideal: "Businesses with no online presence" },
+  { name: "WhatsApp Automation Suite", ideal: "Shops with high inquiry volume" },
+  { name: "Executive Dashboard", ideal: "Owners who want daily P&L visibility" },
+  { name: "Custom CRM / ERP Setup", ideal: "Distributors and large retailers" },
+  { name: "AI Automation Implementation", ideal: "Manufacturing and service businesses" },
+];
+
+const testimonials = [
+  { quote: "Within a month they found where my stock was silently disappearing. My cash flow finally makes sense now.", name: "Sample — Retail Owner", place: "Chennai" },
+  { quote: "The Tamil-first explanation made everything clear. No jargon, just a plan I could actually follow.", name: "Sample — Textile Trader", place: "Tiruppur" },
+  { quote: "The health scan alone showed leaks I never noticed in 12 years of running my unit.", name: "Sample — Manufacturer", place: "Coimbatore" },
 ];
 
 const Overline = ({ children, dark }) => (
@@ -202,7 +208,9 @@ export default function Home() {
                   <span className="font-display text-5xl font-black text-white/15 transition-colors group-hover:text-[#0033FF]">{s.n}</span>
                   <h3 className="font-display mt-4 text-xl font-bold">{s.title}</h3>
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-[#A3A3A3]">{s.desc}</p>
-                  <span className="mt-5 inline-flex w-fit rounded-full bg-[#0033FF] px-4 py-1.5 text-xs font-bold uppercase tracking-wide">{s.cost}</span>
+                  {s.cost && (
+                    <span className="mt-5 inline-flex w-fit rounded-full bg-[#0033FF] px-4 py-1.5 text-xs font-bold uppercase tracking-wide">{s.cost}</span>
+                  )}
                 </div>
               </Reveal>
             ))}
@@ -291,7 +299,7 @@ export default function Home() {
             <Reveal delay={0.1}>
               <p className="mt-6 text-[15px] leading-relaxed text-[#404040]">
                 We never sell a random package. Every service below is prescribed only after your
-                Vaniga Nala Aayvu report reveals the real leak.
+                வணிக நல ஆய்வு (Vaniga Nala Aayvu) report reveals the real leak.
               </p>
               <div className="mt-8 overflow-hidden rounded-2xl border border-[#E5E5E5]">
                 <img src={IMG.dashboard} alt="Executive dashboard analytics" className="h-52 w-full object-cover" />
@@ -308,11 +316,47 @@ export default function Home() {
                       <h3 className="font-display text-lg font-bold text-[#0A0A0A]">{s.name}</h3>
                       <p className="mt-1 text-sm text-[#404040]">{s.ideal}</p>
                     </div>
-                    <span className="font-display shrink-0 text-xl font-black text-[#0033FF]">{s.price}</span>
+                    <ArrowRight size={18} className="hidden shrink-0 text-[#0033FF] transition-transform group-hover:translate-x-1 md:block" />
                   </div>
                 </Reveal>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section data-testid="testimonials-section" className="bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-32">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <Reveal><Overline>Success Stories</Overline></Reveal>
+              <Reveal delay={0.05}>
+                <h2 className="font-display mt-5 text-3xl font-extrabold leading-tight tracking-tight text-[#0A0A0A] md:text-5xl">
+                  Real Wins for Tamil Nadu MSMEs
+                </h2>
+              </Reveal>
+            </div>
+            <Reveal delay={0.1}>
+              <span className="inline-flex rounded-full border border-[#E5E5E5] bg-[#FAFAFA] px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#404040]">
+                Sample stories · edit anytime
+              </span>
+            </Reveal>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <Reveal key={t.name} delay={i * 0.08}>
+                <figure className="flex h-full flex-col rounded-2xl border border-[#E5E5E5] bg-[#FAFAFA] p-8 transition-transform duration-200 hover:-translate-y-1 hover:border-[#0033FF]">
+                  <Quote size={28} className="text-[#0033FF]" />
+                  <blockquote className="mt-5 flex-1 text-[15px] leading-relaxed text-[#0A0A0A]">"{t.quote}"</blockquote>
+                  <figcaption className="mt-6 border-t border-[#E5E5E5] pt-5">
+                    <p className="font-display text-sm font-bold text-[#0A0A0A]">{t.name}</p>
+                    <p className="text-xs text-[#404040]">{t.place}</p>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>

@@ -4,6 +4,8 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import asyncio
+import httpx
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
@@ -19,12 +21,52 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Emergent managed email proxy (constant — must survive deployment)
+EMAIL_BASE_URL = "https://integrations.emergentagent.com"
+EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY")
+EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "GoGreat")
+OWNER_EMAIL = os.environ.get("OWNER_EMAIL", "hello@gogreat.in")
+
 app = FastAPI(title="GoGreat API")
 api_router = APIRouter(prefix="/api")
 
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+async def send_lead_email(subject: str, html_content: str, reply_to: Optional[str] = None):
+    """Fire-and-forget lead notification email. Never raises to the caller."""
+    if not EMAIL_KEY:
+        logging.warning("EMERGENT_EMAIL_KEY not set; skipping email notification")
+        return
+    payload = {
+        "to": [OWNER_EMAIL],
+        "subject": subject,
+        "html": html_content,
+        "from_name": EMAIL_FROM_NAME,
+    }
+    if reply_to:
+        payload["contact_email"] = reply_to
+    try:
+        async with httpx.AsyncClient(timeout=30) as hc:
+            resp = await hc.post(
+                f"{EMAIL_BASE_URL}/api/v1/email/send",
+                headers={"X-Email-Key": EMAIL_KEY},
+                json=payload,
+            )
+        resp.raise_for_status()
+    except Exception as e:  # noqa: BLE001
+        logging.error(f"Lead email send failed: {e}")
+
+
+def _row(label: str, value: str) -> str:
+    value = value or "—"
+    return (
+        f'<tr><td style="padding:8px 12px;border:1px solid #e5e5e5;'
+        f'background:#f7f8ff;font-weight:600;color:#0a0a0a;width:38%">{label}</td>'
+        f'<td style="padding:8px 12px;border:1px solid #e5e5e5;color:#404040">{value}</td></tr>'
+    )
 
 
 # ---------- Models ----------
@@ -72,6 +114,19 @@ async def root():
 async def create_health_scan(payload: HealthScanCreate):
     obj = HealthScan(**payload.model_dump())
     await db.health_scans.insert_one(obj.model_dump())
+    html = (
+        f'<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto">'
+        f'<h2 style="color:#0033FF;margin:0 0 4px">New Free Health Scan lead</h2>'
+        f'<p style="color:#404040;margin:0 0 16px">A business owner just completed the Vaniga Nala Aayvu scan.</p>'
+        f'<table style="border-collapse:collapse;width:100%;font-size:14px">'
+        f'{_row("Name", obj.name)}{_row("Business", obj.company)}{_row("Phone", obj.phone)}'
+        f'{_row("Annual turnover", obj.turnover)}{_row("Accounting", obj.accounting)}'
+        f'{_row("Inventory", obj.inventory)}{_row("Staff / KPI", obj.staff)}'
+        f'{_row("Customer follow-up", obj.followup)}{_row("Technology", obj.technology)}'
+        f'{_row("Biggest challenge", obj.biggest_challenge)}{_row("6-month goal", obj.future_goal)}'
+        f'</table></div>'
+    )
+    asyncio.create_task(send_lead_email(f"New Health Scan — {obj.name} ({obj.company or 'MSME'})", html))
     return obj
 
 
@@ -85,6 +140,15 @@ async def list_health_scans():
 async def create_contact(payload: ContactCreate):
     obj = Contact(**payload.model_dump())
     await db.contacts.insert_one(obj.model_dump())
+    html = (
+        f'<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto">'
+        f'<h2 style="color:#0033FF;margin:0 0 4px">New contact enquiry</h2>'
+        f'<table style="border-collapse:collapse;width:100%;font-size:14px">'
+        f'{_row("Name", obj.name)}{_row("Phone", obj.phone)}{_row("Email", obj.email)}'
+        f'{_row("Business", obj.business)}{_row("Message", obj.message)}'
+        f'</table></div>'
+    )
+    asyncio.create_task(send_lead_email(f"New Contact — {obj.name}", html, reply_to=obj.email or None))
     return obj
 
 

@@ -75,6 +75,27 @@ const initial = {
 const field =
   "w-full rounded-lg border border-[#E5E5E5] bg-white px-4 py-3 text-[15px] text-[#0A0A0A] outline-none transition-colors placeholder:text-[#a3a3a3] focus:border-[#0033FF] focus:ring-2 focus:ring-[#0033FF]/20";
 
+const POS = /(tally|zoho|erp|crm|software|system|website|google|kpi|target|track|count|monthly|whatsapp|regular|accountant|digital|app)/i;
+const NEG = /(notebook|manual|nothing|none|no |don'?t|dont|not sure|unknown|paper|mismatch|nobody|never)/i;
+
+function computeScore(f) {
+  const dims = [f.accounting, f.inventory, f.staff, f.followup, f.technology];
+  let score = 50;
+  dims.forEach((a) => {
+    const v = a || "";
+    if (POS.test(v)) score += 9;
+    if (NEG.test(v)) score -= 7;
+  });
+  const answered = [f.turnover, f.biggest_challenge, f.future_goal].filter((x) => (x || "").trim()).length;
+  score += answered * 2;
+  score = Math.max(34, Math.min(94, score));
+  let label = "Strong foundation";
+  if (score < 50) label = "Needs urgent attention";
+  else if (score < 68) label = "Room to grow";
+  else if (score < 84) label = "Healthy — with leaks to fix";
+  return { score, label };
+}
+
 export default function HealthScan() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initial);
@@ -114,15 +135,47 @@ export default function HealthScan() {
   };
 
   if (done) {
+    const { score, label } = computeScore(form);
+    const dash = 2 * Math.PI * 52;
     return (
       <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-5 py-32 text-center">
-        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-[#0033FF]/10 text-[#0033FF]">
-          <CheckCircle2 size={44} />
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0033FF]/10 text-[#0033FF]">
+          <CheckCircle2 size={38} />
         </span>
-        <h1 data-testid="scan-success" className="font-display mt-8 text-3xl font-black tracking-tight text-[#0A0A0A] md:text-4xl">
+        <h1 data-testid="scan-success" className="font-display mt-6 text-3xl font-black tracking-tight text-[#0A0A0A] md:text-4xl">
           Your Free Health Scan is in.
         </h1>
-        <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#404040]">
+
+        {/* Provisional score */}
+        <div data-testid="scan-score" className="mt-8 w-full rounded-2xl border border-[#E5E5E5] bg-white p-8">
+          <p className="font-display text-xs font-semibold uppercase tracking-widest text-[#0033FF]">Provisional Business Health Score</p>
+          <div className="mt-5 flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <div className="relative h-32 w-32 shrink-0">
+              <svg viewBox="0 0 120 120" className="h-32 w-32 -rotate-90">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#EEF1FF" strokeWidth="12" />
+                <motion.circle
+                  cx="60" cy="60" r="52" fill="none" stroke="#0033FF" strokeWidth="12" strokeLinecap="round"
+                  strokeDasharray={dash}
+                  initial={{ strokeDashoffset: dash }}
+                  animate={{ strokeDashoffset: dash - (dash * score) / 100 }}
+                  transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="font-display text-3xl font-black text-[#0A0A0A]">{score}</span>
+                <span className="text-[11px] font-medium text-[#404040]">/ 100</span>
+              </div>
+            </div>
+            <div className="text-left">
+              <p className="font-display text-lg font-bold text-[#0A0A0A]">{label}</p>
+              <p className="mt-1 max-w-xs text-sm leading-relaxed text-[#404040]">
+                This is an instant estimate. Your full வணிக நல ஆய்வு report will pinpoint the exact money leaks and a fix plan.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[#404040]">
           Thank you, {form.name.split(" ")[0] || "friend"}. Our team will review your answers, spot the
           red flags, and reach out within 24 hours. 100% confidential.
         </p>
