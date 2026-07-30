@@ -22,8 +22,16 @@ Professional B2B consulting website for **GoGreat** — Business Growth & AI Tra
 - Multi-step 8-question Health Scan form (bilingual questions) + contact step with validation, progress bar, animated transitions, success screen; saves to DB.
 - All flows tested: backend 100% (10/10 pytest), frontend 95%; fixed duplicate testid + toast position.
 
+## Iteration 2 (2026-07-30)
+- **Leads Dashboard** at hidden route `/gg-leads-dashboard` (no navbar/footer) — tabs for Health Scans + Contacts with full lead details + refresh.
+- **Email alerts** to hello@gogreat.in on every new Health Scan and Contact submission via Emergent-managed email proxy (fire-and-forget, non-blocking). Verified 202.
+- **Provisional Business Health Score** (out of 100) shown on scan success screen (client-side heuristic, clearly labelled provisional).
+- **Sample testimonials** section on Home (clearly labelled, editable).
+- Content: removed all rupee prices (kept FREE); contact email → hello@gogreat.in; address → "M.R.K. Mannar building"; added LinkedIn/Instagram/Facebook/YouTube; Tamil term "வணிக நல ஆய்வு (Vaniga Nala Aayvu)"; modern people-focused hero + About images.
+- Tested: backend 12/12, frontend 100%. Test/seed data cleared.
+
 ## Backlog / Next
-- P1: Simple admin/leads dashboard to view submitted scans & contacts.
-- P1: Email/WhatsApp notification to GoGreat on new submission.
-- P2: Auto-computed "Business Health Score" preview after scan.
-- P2: Testimonials / case-study section for social proof.
+- P1: Password-protect the Leads Dashboard (currently hidden URL only).
+- P1: WhatsApp lead alerts (needs paid Twilio + business approval).
+- P2: Export leads to CSV; lead status tags (new/contacted/closed).
+- P2: Case-study section with real client results once available.

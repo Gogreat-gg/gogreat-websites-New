@@ -1,16 +1,19 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import hmac
 import logging
 import asyncio
 import httpx
+import jwt
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 ROOT_DIR = Path(__file__).parent
@@ -26,6 +29,37 @@ EMAIL_BASE_URL = "https://integrations.emergentagent.com"
 EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY")
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "GoGreat")
 OWNER_EMAIL = os.environ.get("OWNER_EMAIL", "hello@gogreat.in")
+
+# Admin auth (single admin from env)
+JWT_SECRET = os.environ.get("JWT_SECRET", "change-me")
+JWT_ALGORITHM = "HS256"
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "hello@gogreat.in").lower()
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def create_access_token(email: str) -> str:
+    payload = {
+        "sub": email,
+        "type": "access",
+        "exp": datetime.now(timezone.utc) + timedelta(hours=12),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+async def require_admin(creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)):
+    if creds is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(creds.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Session expired. Please log in again.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    if payload.get("sub", "").lower() != ADMIN_EMAIL:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    return payload["sub"]
+
 
 app = FastAPI(title="GoGreat API")
 api_router = APIRouter(prefix="/api")
@@ -88,6 +122,7 @@ class HealthScanCreate(BaseModel):
 class HealthScan(HealthScanCreate):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: str = Field(default_factory=now_iso)
+    status: str = "new"
 
 
 class ContactCreate(BaseModel):
@@ -102,6 +137,19 @@ class ContactCreate(BaseModel):
 class Contact(ContactCreate):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: str = Field(default_factory=now_iso)
+    status: str = "new"
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class StatusUpdate(BaseModel):
+    status: str
+
+
+ALLOWED_STATUSES = {"new", "contacted", "closed"}
 
 
 # ---------- Routes ----------
@@ -130,10 +178,33 @@ async def create_health_scan(payload: HealthScanCreate):
     return obj
 
 
+@api_router.post("/admin/login")
+async def admin_login(payload: LoginRequest):
+    email_ok = payload.email.strip().lower() == ADMIN_EMAIL
+    pass_ok = hmac.compare_digest(payload.password, ADMIN_PASSWORD) if ADMIN_PASSWORD else False
+    if not (email_ok and pass_ok):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    token = create_access_token(ADMIN_EMAIL)
+    return {"token": token, "email": ADMIN_EMAIL}
+
+
 @api_router.get("/health-scan", response_model=List[HealthScan])
-async def list_health_scans():
+async def list_health_scans(_: str = Depends(require_admin)):
     docs = await db.health_scans.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return [HealthScan(**d) for d in docs]
+
+
+@api_router.patch("/health-scan/{scan_id}", response_model=HealthScan)
+async def update_health_scan_status(scan_id: str, payload: StatusUpdate, _: str = Depends(require_admin)):
+    if payload.status not in ALLOWED_STATUSES:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    res = await db.health_scans.find_one_and_update(
+        {"id": scan_id}, {"$set": {"status": payload.status}},
+        projection={"_id": 0}, return_document=True,
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    return HealthScan(**res)
 
 
 @api_router.post("/contact", response_model=Contact)
@@ -153,9 +224,22 @@ async def create_contact(payload: ContactCreate):
 
 
 @api_router.get("/contact", response_model=List[Contact])
-async def list_contacts():
+async def list_contacts(_: str = Depends(require_admin)):
     docs = await db.contacts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return [Contact(**d) for d in docs]
+
+
+@api_router.patch("/contact/{contact_id}", response_model=Contact)
+async def update_contact_status(contact_id: str, payload: StatusUpdate, _: str = Depends(require_admin)):
+    if payload.status not in ALLOWED_STATUSES:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    res = await db.contacts.find_one_and_update(
+        {"id": contact_id}, {"$set": {"status": payload.status}},
+        projection={"_id": 0}, return_document=True,
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    return Contact(**res)
 
 
 app.include_router(api_router)
