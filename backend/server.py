@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
@@ -19,54 +19,81 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
-
-# Create a router with the /api prefix
+app = FastAPI(title="GoGreat API")
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+# ---------- Models ----------
+class HealthScanCreate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    turnover: str = ""
+    accounting: str = ""
+    inventory: str = ""
+    staff: str = ""
+    followup: str = ""
+    technology: str = ""
+    biggest_challenge: str = ""
+    future_goal: str = ""
+    name: str
+    company: str = ""
+    phone: str
+
+
+class HealthScan(HealthScanCreate):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: str = Field(default_factory=now_iso)
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
 
-# Add your routes to the router instead of directly to app
+class ContactCreate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    name: str
+    phone: str
+    email: Optional[str] = ""
+    business: Optional[str] = ""
+    message: str = ""
+
+
+class Contact(ContactCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: str = Field(default_factory=now_iso)
+
+
+# ---------- Routes ----------
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "GoGreat API running"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.post("/health-scan", response_model=HealthScan)
+async def create_health_scan(payload: HealthScanCreate):
+    obj = HealthScan(**payload.model_dump())
+    await db.health_scans.insert_one(obj.model_dump())
+    return obj
 
-# Include the router in the main app
+
+@api_router.get("/health-scan", response_model=List[HealthScan])
+async def list_health_scans():
+    docs = await db.health_scans.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return [HealthScan(**d) for d in docs]
+
+
+@api_router.post("/contact", response_model=Contact)
+async def create_contact(payload: ContactCreate):
+    obj = Contact(**payload.model_dump())
+    await db.contacts.insert_one(obj.model_dump())
+    return obj
+
+
+@api_router.get("/contact", response_model=List[Contact])
+async def list_contacts():
+    docs = await db.contacts.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return [Contact(**d) for d in docs]
+
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,12 +104,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
