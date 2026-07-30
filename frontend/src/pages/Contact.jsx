@@ -80,9 +80,9 @@ export default function Contact() {
                     </div>
                   );
                   return d.href ? (
-                    <a key={d.label} href={d.href} target="_blank" rel="noreferrer" data-testid={`contact-${d.label.toLowerCase()}`}>{inner}</a>
+                    <a key={d.label} href={d.href} target="_blank" rel="noreferrer" data-testid={`contact-info-${d.label.toLowerCase()}`}>{inner}</a>
                   ) : (
-                    <div key={d.label} data-testid={`contact-${d.label.toLowerCase()}`}>{inner}</div>
+                    <div key={d.label} data-testid={`contact-info-${d.label.toLowerCase()}`}>{inner}</div>
                   );
                 })}
                 <a

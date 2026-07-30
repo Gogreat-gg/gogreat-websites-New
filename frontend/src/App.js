@@ -56,7 +56,7 @@ function App() {
           <Route path="/health-scan" element={<Layout><HealthScan /></Layout>} />
         </Routes>
       </BrowserRouter>
-      <Toaster position="top-center" richColors />
+      <Toaster position="bottom-right" richColors />
     </div>
   );
 }
